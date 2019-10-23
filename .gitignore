@@ -1,0 +1,6 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+data-raw/landcover_2040_fraction.csv
+data-raw/.DS_Store
