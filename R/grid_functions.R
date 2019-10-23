@@ -46,7 +46,7 @@ generate_nc <- function(dataFrame_list, years, var_name, var_units, nc_name){
   lon_dim  <- ncdf4::ncdim_def('lon', 'degrees_east', unique(as.double(demeterNCDF::FullGrid$longitude)))
   lat_dim  <- ncdf4::ncdim_def('lat', 'degrees_north', unique(as.double(demeterNCDF::FullGrid$latitude)))
   time_dim <- ncdf4::ncdim_def('time', 'year', as.double(years))
-  def      <- ncdf4::ncvar_def('fake', 'deg C', list(lon_dim, lat_dim, time_dim), NA)
+  def      <- ncdf4::ncvar_def(var_name, var_units, list(lon_dim, lat_dim, time_dim), NA)
 
   ncout <- ncdf4::nc_create(nc_name, def)
 

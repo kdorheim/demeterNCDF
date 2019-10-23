@@ -46,7 +46,7 @@ testthat::test_that('generate_nc works',{
   testthat::expect_true(file.exists(nc_path))
 
   nc <- ncdf4::nc_open(nc_path)
-  x  <- ncdf4::ncvar_get(nc, 'fake')
+  x  <- ncdf4::ncvar_get(nc, 'test')
   x_lat <- ncdf4::ncvar_get(nc, 'lat')
   x_lon <- ncdf4::ncvar_get(nc, 'lon')
 
@@ -72,7 +72,7 @@ testthat::test_that('generate_nc works with mulitple time slices', {
   nc_path <- generate_nc(dataFrame_list = data_list, years = years, var_name = 'test', var_units = 'moles', nc_name = './test1.nc')
 
   nc <- ncdf4::nc_open(nc_path)
-  x  <- ncdf4::ncvar_get(nc, 'fake')
+  x  <- ncdf4::ncvar_get(nc, 'test')
   x_lat  <- ncdf4::ncvar_get(nc, 'lat')
   x_lon  <- ncdf4::ncvar_get(nc, 'lon')
   x_time <- ncdf4::ncvar_get(nc, 'time')
