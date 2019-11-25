@@ -1,7 +1,6 @@
-
-#' Import Demeter csv output
+#' Convert from a partial Demeter grid to a full grid
 #'
-#' Read in the csv input for Demeter land allocation.
+#' Need to add this
 #'
 #' @param input A data frame of longitude, latitude, and some variable that needs to be expanded to the full NCDF grid.
 #' @param variable A string of the variable name in the input data frame that needs to be expanded before we can grid it.
@@ -18,7 +17,12 @@ generate_FullGrid <- function(input, variable){
   input$value       <- input[[variable]]
   input[[variable]] <- variable
 
+  input$longitude <- round(x = input$longitude, digits = 4)
+  input$latitude  <- round(x = input$latitude, digits = 4)
+
   tibble::as_tibble(demeterNCDF::FullGrid) %>%
+    dplyr::mutate(longitude = round(longitude, digits = 4),
+                  latitude = round(latitude, digits = 4)) %>%
     dplyr::full_join(tibble::as_tibble(input[ , names(input) %in% c('longitude', 'latitude', 'value')]),
                                        by = c('latitude', 'longitude')) %>%
     dplyr::arrange(latitude, longitude) ->
@@ -31,6 +35,19 @@ generate_FullGrid <- function(input, variable){
 
 }
 
+#' Wrtie data as a netcdf file.
+#'
+#' Using a list of data frames containing values for all of the input variables write netcdf files.
+#'
+#' @param dataFrame_list A list of data frames that were produced by the \code{generate_FullGrid}, each element in the data frmae list should
+#' contain data for a single time slice.
+#' @param years A vector of the name of the years or the time slices.
+#' @param var_name A string vector of the variable name
+#' @param var_units A string vector of the variable units
+#' @param nc_name A string file path for the name of the file to save the netcdf at.
+#' @return A netcdf saved as nc_name
+#' @importFrom dplyr %>%
+#' @export
 generate_nc <- function(dataFrame_list, years, var_name, var_units, nc_name){
 
   # Check the inpus

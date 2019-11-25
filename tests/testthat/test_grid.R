@@ -34,19 +34,17 @@ geo_data <- data.frame(lat = c(-55.7916, -30.8749, 27.4584, -5.04162, 75.4583),
 geo_data$longitude <- geo_data$lon
 geo_data$latitude  <- geo_data$lat
 geo_data <- geo_data[ , names(geo_data) %in% c('longitude', 'latitude', 'Value')]
-
-# Expand the fake geo data.
-expanded_grid <- generate_FullGrid(input = geo_data, variable = 'Value')
+geo_full <- generate_FullGrid(geo_data, 'Value')
 
 testthat::test_that('generate_nc works',{
 
   # Make the netcdf file
-  nc_path <- generate_nc(dataFrame_list = list(expanded_grid), years = 2010, var_name = 'test', var_units = 'moles', nc_name = './test1.nc')
+  nc_path <- generate_nc(dataFrame_list = list(geo_full), years = 2010, var_name = 'Value', var_units = 'moles', nc_name = './test1.nc')
 
   testthat::expect_true(file.exists(nc_path))
 
   nc <- ncdf4::nc_open(nc_path)
-  x  <- ncdf4::ncvar_get(nc, 'test')
+  x  <- ncdf4::ncvar_get(nc, 'Value')
   x_lat <- ncdf4::ncvar_get(nc, 'lat')
   x_lon <- ncdf4::ncvar_get(nc, 'lon')
 
@@ -56,18 +54,20 @@ testthat::test_that('generate_nc works',{
 
 
   # Test to see if the values were entered correctly.
-  selected_values <- geo_data[geo_data$Value == 7, ]
-  x_id <- which(x == 7, arr.ind = TRUE)
-  testthat::expect(all(c(selected_values - c(Value = 7, longitude = x_lon[[x_id[1]]], latitude = x_lat[[x_id[[2]]]])) == 0 ))
-
-file.remove(nc_path)
+  find_value      <- 7
+  selected_values <- geo_data[geo_data$Value == find_value, ]
+  x_id            <- which(x == 7, arr.ind = TRUE)
+  exected_values  <- c(Value = find_value, longitude = x_lon[[x_id[1]]], latitude = x_lat[[x_id[[2]]]])
+  diff_values     <- abs(selected_values - exected_values)
+  testthat::expect(all(diff_values <= 1e-3))
+  file.remove(nc_path)
 
 })
 
 testthat::test_that('generate_nc works with mulitple time slices', {
 
   # Let's say that we are going to use three years of data.
-  data_list <- list(expanded_grid, expanded_grid, expanded_grid)
+  data_list <- list(geo_full, geo_full, geo_full)
   years     <- c(2010, 2011, 2012)
   nc_path <- generate_nc(dataFrame_list = data_list, years = years, var_name = 'test', var_units = 'moles', nc_name = './test1.nc')
 
@@ -82,3 +82,7 @@ testthat::test_that('generate_nc works with mulitple time slices', {
 
   file.remove(nc_path)
 })
+
+# Clean up.
+remove(geo_data)
+remove(geo_full)
