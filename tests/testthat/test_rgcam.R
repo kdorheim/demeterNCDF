@@ -42,9 +42,12 @@ testthat::test_that('calucalte_GridCellYeild',{
   # Check to make sure the function works.
   production <- process_AgProductionTech(prjdata = prjdata)
   area       <- process_LandAllocation(prjdata = prjdata)
+
+  production <- dplyr::filter(production, basin_id == 13)
+  area       <- dplyr::filter(area, basin_id == 13)
+
   out <- calucalte_GridCellYeild(production = production, land_area = area)
   testthat::expect_true(!is.null(out))
-
 
   # Are the yeild values returned as expected?
   production$production <- 100
@@ -60,8 +63,5 @@ testthat::test_that('generate_AgYield_grid', {
   fake <- prjdata
   fake$BAU$LandAllocation <- NULL
   testthat::expect_error(generate_AgYield_grid(prjdata = fake), regexp = 'Missing required query output')
-  remove(fake)
-
-  out <- generate_AgYield_grid(prjdata)
 
 })
